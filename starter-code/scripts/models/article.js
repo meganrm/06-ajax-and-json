@@ -12,6 +12,9 @@ function Article (opts) {
  the prototype, as that would only be relevant to a single instantiated Article.
  */
 
+Article.allArticles = [];
+
+
 Article.prototype.toHtml = function(scriptTemplateId) {
   var template = Handlebars.compile($(scriptTemplateId).text());
   this.daysAgo = parseInt((new Date() - new Date(this.publishedOn))/60/60/24/1000);
@@ -28,18 +31,32 @@ Article.prototype.toHtml = function(scriptTemplateId) {
 /* TODO: Refactor this code into a function for greater control.
     It will take in our data, and process it via the Article constructor: */
 
-ourLocalData.sort(function(a,b) {
-  return (new Date(b.publishedOn)) - (new Date(a.publishedOn));
-});
 
-ourLocalData.forEach(function(ele) {
-  articles.push(new Article(ele));
-});
+Article.prototype.loadAll = function(inputData){
+  inputData.sort(function(a,b) {
+    return (new Date(b.publishedOn)) - (new Date(a.publishedOn));
+  }).forEach(function(ele) {
+    Article.articles.push(new Article(ele));
+  });
 
-
+};
 /* This function below will retrieve the data from either a local or remote
  source, process it, then hand off control to the View: */
 
+Article.fetchAll = function(){
+  if (!localStorage.hackerIpsum) {
+    $.getJSON('data/hackerIpsum.json', function(data){
+      localStorage['hackerIpsum'] = JSON.stringify(data);
+      console.log(data);
+      // Article.fetchAll();
+    });
+    // when our data is already in local storage
+  }
+  // articleView.renderIndexPage();
+
+};
+
+Article.fetchAll();
 
 /* Great work so far! STRETCH GOAL TIME!? Refactor your fetchAll above, or
    get some additional typing practice below. Our main goal in this part of the
